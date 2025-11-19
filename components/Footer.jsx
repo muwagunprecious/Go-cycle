@@ -14,10 +14,10 @@ const Footer = () => {
         {
             title: "PRODUCTS",
             links: [
-                { text: "Earphones", path: '/', icon: null },
-                { text: "Headphones", path: '/', icon: null },
-                { text: "Smartphones", path: '/', icon: null },
-                { text: "Laptops", path: '/', icon: null },
+                { text: "Battery", path: '/', icon: null },
+                { text: "Battery", path: '/', icon: null },
+                { text: "Battery", path: '/', icon: null },
+                { text: "Battery", path: '/', icon: null },
             ]
         },
         {
