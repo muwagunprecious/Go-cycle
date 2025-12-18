@@ -1,69 +1,119 @@
-'use client'
-import { Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart, LeafIcon, BellIcon, LogOutIcon, LayoutDashboardIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "@/lib/features/auth/authSlice";
 
 const Navbar = () => {
 
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const [search, setSearch] = useState('')
     const cartCount = useSelector(state => state.cart.total)
+    const { user, isLoggedIn } = useSelector(state => state.auth)
+    const notifications = useSelector(state => state.notifications.list)
+    const unreadCount = notifications.filter(n => n.status === 'unread').length
 
     const handleSearch = (e) => {
         e.preventDefault()
         router.push(`/shop?search=${search}`)
     }
 
-    return (
-        <nav className="relative bg-white">
-            <div className="mx-6">
-                <div className="flex items-center justify-between max-w-7xl mx-auto py-4  transition-all">
+    const handleLogout = () => {
+        dispatch(logout())
+        router.push('/')
+    }
 
-                    <Link href="/" className="relative text-4xl font-semibold text-slate-700">
-                        <span className="text-green-600">go</span>cart<span className="text-green-600 text-5xl leading-0">.</span>
-                        <p className="absolute text-xs font-semibold -top-1 -right-8 px-3 p-0.5 rounded-full flex items-center gap-2 text-white bg-green-500">
-                            plus
-                        </p>
+    const getDashboardLink = () => {
+        if (!user) return '/login'
+        if (user.role === 'ADMIN') return '/admin'
+        if (user.role === 'SELLER') return '/seller'
+        if (user.role === 'DELIVERY') return '/delivery'
+        return '/buyer'
+    }
+
+    return (
+        <nav className="relative bg-white border-b border-slate-50 sticky top-0 z-50">
+            <div className="mx-6">
+                <div className="flex items-center justify-between max-w-7xl mx-auto py-5 transition-all">
+
+                    <Link href="/" className="flex items-center gap-2 group">
+                        <div className="bg-[#05DF72] p-2 rounded-xl transition-transform group-hover:rotate-12 shadow-lg shadow-[#05DF72]/20">
+                            <LeafIcon className="text-white fill-white" size={20} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xl font-black text-slate-900 tracking-tighter leading-none">Go<span className="text-[#05DF72]">Cycle</span></span>
+                            <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">Battery Loop</span>
+                        </div>
                     </Link>
 
                     {/* Desktop Menu */}
-                    <div className="hidden sm:flex items-center gap-4 lg:gap-8 text-slate-600">
-                        <Link href="/">Home</Link>
-                        <Link href="/shop">Shop</Link>
-                        <Link href="/">About</Link>
-                        <Link href="/">Contact</Link>
+                    <div className="hidden sm:flex items-center gap-4 lg:gap-8 text-slate-500 font-bold text-sm">
+                        <Link href="/shop" className="hover:text-[#05DF72] transition-colors uppercase tracking-widest text-[10px]">Marketplace</Link>
+                        <Link href="/about" className="hover:text-[#05DF72] transition-colors uppercase tracking-widest text-[10px]">Eco Impact</Link>
+                        <Link href="/seller" className="text-[#05DF72] bg-[#05DF72]/5 px-4 py-2 rounded-full hover:bg-[#05DF72] hover:text-white transition-all uppercase tracking-widest text-[10px]">Sell Batteries</Link>
 
-                        <form onSubmit={handleSearch} className="hidden xl:flex items-center w-xs text-sm gap-2 bg-slate-100 px-4 py-3 rounded-full">
-                            <Search size={18} className="text-slate-600" />
-                            <input className="w-full bg-transparent outline-none placeholder-slate-600" type="text" placeholder="Search products" value={search} onChange={(e) => setSearch(e.target.value)} required />
+                        <form onSubmit={handleSearch} className="hidden lg:flex items-center w-48 text-[10px] gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 focus-within:border-[#05DF72] transition-all">
+                            <Search size={14} className="text-slate-400" />
+                            <input className="w-full bg-transparent outline-none placeholder-slate-400 text-slate-700 font-bold uppercase" type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} required />
                         </form>
 
-                        <Link href="/cart" className="relative flex items-center gap-2 text-slate-600">
-                            <ShoppingCart size={18} />
-                            Cart
-                            <button className="absolute -top-1 left-3 text-[8px] text-white bg-slate-600 size-3.5 rounded-full">{cartCount}</button>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                            <Link href="/cart" className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-all group">
+                                <ShoppingCart size={20} className="text-slate-600 group-hover:text-[#05DF72]" />
+                                {cartCount > 0 && <span className="absolute -top-1 -right-1 text-[10px] text-white bg-slate-900 size-5 rounded-full flex items-center justify-center font-black shadow-lg animate-in zoom-in">{cartCount}</span>}
+                            </Link>
 
-                        <button className="px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full">
-                            Login
-                        </button>
+                            {isLoggedIn && (
+                                <Link href="/notifications" className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-all group">
+                                    <BellIcon size={20} className="text-slate-600 group-hover:text-[#05DF72]" />
+                                    {unreadCount > 0 && <span className="absolute top-2 right-2 w-2 h-2 bg-[#05DF72] rounded-full ring-2 ring-white"></span>}
+                                </Link>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-3 ml-2">
+                            {!isLoggedIn ? (
+                                <Link href="/login" className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 active:scale-95 transition-all shadow-xl shadow-slate-200">
+                                    Sign In
+                                </Link>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Link href={getDashboardLink()} className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#05DF72] transition-all shadow-xl shadow-slate-200 flex items-center gap-2">
+                                        <LayoutDashboardIcon size={14} /> Portal
+                                    </Link>
+                                    <button onClick={handleLogout} className="p-3 bg-rose-50 text-rose-500 rounded-2xl hover:bg-rose-100 transition-all active:scale-95">
+                                        <LogOutIcon size={16} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
                     </div>
 
-                    {/* Mobile User Button  */}
-                    <div className="sm:hidden">
-                        <button className="px-7 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-sm transition text-white rounded-full">
-                            Login
-                        </button>
+                    {/* Mobile Controls  */}
+                    <div className="sm:hidden flex items-center gap-3">
+                        <Link href="/cart" className="relative p-2">
+                            <ShoppingCart size={22} className="text-slate-700" />
+                            {cartCount > 0 && <span className="absolute -top-1 -right-1 text-[8px] text-white bg-slate-900 size-4 rounded-full flex items-center justify-center font-black">{cartCount}</span>}
+                        </Link>
+                        {!isLoggedIn ? (
+                            <Link href="/login" className="px-4 py-2 bg-[#05DF72] text-[10px] font-black text-white rounded-xl uppercase tracking-widest">
+                                Login
+                            </Link>
+                        ) : (
+                            <Link href={getDashboardLink()} className="p-2 bg-slate-900 text-white rounded-xl">
+                                <LayoutDashboardIcon size={18} />
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>
-            <hr className="border-gray-300" />
         </nav>
     )
 }
 
 export default Navbar
+

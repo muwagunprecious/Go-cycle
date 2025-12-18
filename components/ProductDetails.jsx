@@ -1,13 +1,16 @@
 'use client'
 
 import { addToCart } from "@/lib/features/cart/cartSlice";
-import { 
-    StarIcon, 
+import {
+    StarIcon,
     TagIcon,
     Battery,
     MapPin,
     Package,
-    Boxes
+    Boxes,
+    ShieldCheckIcon,
+    TruckIcon,
+    WalletIcon
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -15,11 +18,12 @@ import { useState } from "react";
 import Image from "next/image";
 import Counter from "./Counter";
 import { useDispatch, useSelector } from "react-redux";
+import CheckoutModal from "./CheckoutModal";
 
 const ProductDetails = ({ product }) => {
 
     const productId = product.id;
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$';
+    const currency = '₦'; // As per NEXT_PUBLIC_CURRENCY_SYMBOL
 
     const cart = useSelector(state => state.cart.cartItems);
     const dispatch = useDispatch();
@@ -27,131 +31,164 @@ const ProductDetails = ({ product }) => {
     const router = useRouter()
 
     const [mainImage, setMainImage] = useState(product.images[0]);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState('Pay Now');
 
     const addToCartHandler = () => {
         dispatch(addToCart({ productId }))
     }
 
-    const averageRating =
+    const openCheckout = (method) => {
+        setSelectedPayment(method)
+        setIsCheckoutOpen(true)
+    }
+
+    const averageRating = product.rating?.length > 0 ?
         product.rating.reduce((acc, item) => acc + item.rating, 0) /
-        product.rating.length;
+        product.rating.length : 0;
 
     return (
-        <div className="flex max-lg:flex-col gap-12">
-            
+        <div className="flex max-lg:flex-col gap-12 p-4">
+
             {/* LEFT: Images */}
-            <div className="flex max-sm:flex-col-reverse gap-3">
-                <div className="flex sm:flex-col gap-3">
+            <div className="flex max-sm:flex-col-reverse gap-4 flex-1">
+                <div className="flex sm:flex-col gap-4">
                     {product.images.map((image, index) => (
                         <div
                             key={index}
                             onClick={() => setMainImage(product.images[index])}
-                            className="bg-slate-100 flex items-center justify-center size-26 rounded-lg group cursor-pointer"
+                            className={`bg-slate-50 flex items-center justify-center size-24 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden ${mainImage === image ? 'border-[#05DF72]' : 'border-transparent'}`}
                         >
                             <Image
                                 src={image}
-                                className="group-hover:scale-103 group-active:scale-95 transition"
+                                className="hover:scale-110 transition-transform duration-500"
                                 alt=""
-                                width={45}
-                                height={45}
+                                width={80}
+                                height={80}
+                                objectFit="cover"
                             />
                         </div>
                     ))}
                 </div>
 
-                <div className="flex justify-center items-center h-100 sm:size-113 bg-slate-100 rounded-lg">
-                    <Image src={mainImage} alt="" width={250} height={250} />
+                <div className="flex-1 flex justify-center items-center bg-slate-50 rounded-[2.5rem] p-10 relative group overflow-hidden border border-slate-100 min-h-[400px]">
+                    <Image src={mainImage} alt="" width={400} height={400} className="group-hover:scale-105 transition-transform duration-700 relative z-10" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#05DF72]/5 rounded-full blur-[80px]"></div>
                 </div>
             </div>
 
             {/* RIGHT: Product info */}
-            <div className="flex-1">
-
-                <h1 className="text-3xl font-semibold text-slate-800">{product.name}</h1>
-
-                <div className="flex items-center mt-2">
-                    {Array(5)
-                        .fill('')
-                        .map((_, index) => (
-                            <StarIcon
-                                key={index}
-                                size={14}
-                                className="text-transparent mt-0.5"
-                                fill={averageRating >= index + 1 ? "#00C950" : "#D1D5DB"}
-                            />
-                        ))}
-                    <p className="text-sm ml-3 text-slate-500">{product.rating.length} Reviews</p>
+            <div className="flex-1 lg:max-w-xl">
+                <div className="inline-flex items-center gap-2 bg-green-50 text-[#05DF72] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 border border-green-100">
+                    <ShieldCheckIcon size={12} /> Verified Battery
                 </div>
 
-                <div className="flex items-start my-6 gap-3 text-2xl font-semibold text-slate-800">
-                    <p>{currency}{product.price}</p>
-                    <p className="text-xl text-slate-500 line-through">
-                        {currency}{product.mrp}
+                <h1 className="text-4xl font-black text-slate-900 leading-tight">{product.name}</h1>
+
+                <div className="flex items-center mt-4">
+                    <div className="flex gap-0.5">
+                        {Array(5)
+                            .fill('')
+                            .map((_, index) => (
+                                <StarIcon
+                                    key={index}
+                                    size={16}
+                                    fill={averageRating >= index + 1 ? "#05DF72" : "#E2E8F0"}
+                                    stroke="none"
+                                />
+                            ))}
+                    </div>
+                    <p className="text-sm ml-3 text-slate-500 font-medium">({product.rating.length} customer reviews)</p>
+                </div>
+
+                <div className="flex items-baseline my-8 gap-4">
+                    <p className="text-4xl font-black text-slate-900">{currency}{product.price.toLocaleString()}</p>
+                    <p className="text-xl text-slate-400 line-through font-medium">
+                        {currency}{product.mrp.toLocaleString()}
                     </p>
+                    <span className="bg-rose-50 text-rose-500 text-[10px] font-black px-2 py-1 rounded-md">
+                        {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% OFF
+                    </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-slate-500">
-                    <TagIcon size={14} />
-                    <p>
-                        Save {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% right now
-                    </p>
+                <div className="flex flex-col gap-4 mb-10">
+                    <h2 className="text-lg font-bold text-slate-900 border-l-4 border-[#05DF72] pl-4">Purchase Options</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button
+                            onClick={() => openCheckout('Pay Now')}
+                            className="flex flex-col items-center justify-center p-6 bg-slate-900 text-white rounded-[2rem] hover:bg-[#05DF72] transition-all group shadow-xl hover:scale-[1.02] active:scale-95 duration-300"
+                        >
+                            <WalletIcon className="mb-2 group-hover:scale-110 transition-transform" size={24} />
+                            <span className="font-bold">Pay Now</span>
+                            <span className="text-[10px] text-white/60 font-medium">Secure Card Payment</span>
+                        </button>
+                        <button
+                            onClick={() => openCheckout('Pay on Delivery')}
+                            className="flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-100 text-slate-900 rounded-[2rem] hover:border-[#05DF72] hover:text-[#05DF72] transition-all group hover:scale-[1.02] active:scale-95 duration-300 shadow-sm"
+                        >
+                            <TruckIcon className="mb-2 group-hover:scale-110 transition-transform" size={24} />
+                            <span className="font-bold">Pay on Delivery</span>
+                            <span className="text-[10px] text-slate-400 font-medium font-bold">Lagos Delivery only</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex items-end gap-5 mt-10">
+                <div className="flex items-center gap-5 mt-10">
                     {cart[productId] && (
-                        <div className="flex flex-col gap-3">
-                            <p className="text-lg text-slate-800 font-semibold">Quantity</p>
+                        <div className="flex flex-col gap-2">
+                            <p className="text-xs text-slate-400 font-black uppercase tracking-widest pl-1">Quantity</p>
                             <Counter productId={productId} />
                         </div>
                     )}
 
                     <button
                         onClick={() => !cart[productId] ? addToCartHandler() : router.push('/cart')}
-                        className="bg-slate-800 text-white px-10 py-3 text-sm font-medium rounded hover:bg-slate-900 active:scale-95 transition"
+                        className={`flex-1 !py-5 shadow-lg transition-all ${!cart[productId] ? 'btn-primary' : 'bg-slate-100 text-slate-600 font-bold rounded-[2rem] hover:bg-slate-200'}`}
                     >
-                        {!cart[productId] ? 'Add to Cart' : 'View Cart'}
+                        {!cart[productId] ? 'Add to Cart' : 'View in Cart'}
                     </button>
                 </div>
 
-                <hr className="border-gray-300 my-5" />
+                <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                    <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <Battery className="text-[#05DF72]" size={20} /> Specs & Logistics
+                    </h2>
 
-
-                {/* ⭐️ Added Battery Description Section */}
-                <h2 className="text-lg font-bold text-slate-800 mb-2">
-                    Battery Description
-                </h2>
-
-                <div className="flex flex-col gap-4 text-slate-500">
-
-                    <p className="flex gap-3 items-center">
-                        <Battery className="text-slate-400" />
-                        Battery Size:
-                        <span className="text-slate-700 font-medium">12V 100Ah</span>
-                    </p>
-
-                    <p className="flex gap-3 items-center">
-                        <MapPin className="text-slate-400" />
-                        Location:
-                        <span className="text-slate-700 font-medium">Lagos Island, Lagos</span>
-                    </p>
-
-                    <p className="flex gap-3 items-center">
-                        <Package className="text-slate-400" />
-                        Pickup From:
-                        <span className="text-slate-700 font-medium">2024-08-15</span>
-                    </p>
-
-                    <p className="flex gap-3 items-center">
-                        <Boxes className="text-slate-400" />
-                        Units Available:
-                        <span className="text-slate-700 font-medium">2</span>
-                    </p>
-
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm"><Battery size={16} className="text-slate-400" /></div>
+                                <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase">Capacity</span><span className="text-sm font-bold text-slate-700">{product.capacity || 'N/A'}</span></div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm"><MapPin size={16} className="text-slate-400" /></div>
+                                <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase">Pickup Location</span><span className="text-sm font-bold text-slate-700">{product.store?.address || 'Lagos'}</span></div>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm"><Package size={16} className="text-slate-400" /></div>
+                                <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase">Condition</span><span className="text-sm font-bold text-slate-700">{product.condition || 'Used'}</span></div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white rounded-xl shadow-sm"><Boxes size={16} className="text-slate-400" /></div>
+                                <div className="flex flex-col"><span className="text-[10px] text-slate-400 font-bold uppercase">Availability</span><span className="text-sm font-bold text-[#05DF72]">In Stock</span></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
+
+            <CheckoutModal
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                product={product}
+                paymentMethod={selectedPayment}
+            />
         </div>
     )
 }
 
 export default ProductDetails
+

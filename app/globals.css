@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@theme {
+    --color-primary: #05DF72;
+    --color-primary-dark: #04b35c;
+    --color-bg-soft: #f9fafb;
+}
+
 @layer components {
     @keyframes marqueeScroll {
         0% {
@@ -9,11 +15,32 @@
             transform: translateX(-50%);
         }
     }
+
+    .btn-primary {
+        @apply bg-[#05DF72] text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:bg-[#04b35c] active:scale-95 flex items-center justify-center gap-2;
+    }
+
+    .card {
+        @apply bg-white border border-slate-200 rounded-xl overflow-hidden transition-shadow hover:shadow-lg;
+    }
+
+    .status-badge {
+        @apply px-3 py-1 rounded-full text-xs font-medium inline-block;
+    }
+
+    .status-pending { @apply bg-orange-100 text-orange-600; }
+    .status-approved { @apply bg-blue-100 text-blue-600; }
+    .status-picked { @apply bg-indigo-100 text-indigo-600; }
+    .status-transit { @apply bg-purple-100 text-purple-600; }
+    .status-completed { @apply bg-green-100 text-green-600; }
 }
 
 @layer base {
     button {
         cursor: pointer;
+    }
+    body {
+        @apply text-slate-800 bg-[#f9fafb];
     }
 }
 

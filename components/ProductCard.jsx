@@ -1,31 +1,45 @@
 'use client'
-import { StarIcon } from 'lucide-react'
+import { StarIcon, ShieldCheckIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
 const ProductCard = ({ product }) => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const currency = '₦'
 
     // calculate the average rating of the product
-    const rating = Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length);
+    const rating = product.rating?.length > 0 ? Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length) : 0;
 
     return (
-        <Link href={`/product/${product.id}`} className=' group max-xl:mx-auto'>
-            <div className='bg-[#F5F5F5] h-40  sm:w-60 sm:h-68 rounded-lg flex items-center justify-center'>
-                <Image width={500} height={500} className='max-h-30 sm:max-h-40 w-auto group-hover:scale-115 transition duration-300' src={product.images[0]} alt="" />
+        <Link href={`/product/${product.id}`} className='group block'>
+            <div className='bg-slate-50 aspect-square rounded-[2rem] flex items-center justify-center relative overflow-hidden border border-slate-100 group-hover:border-[#05DF72]/30 transition-all duration-500'>
+                <Image width={500} height={500} className='w-2/3 h-auto group-hover:scale-110 transition duration-700 relative z-10' src={product.images[0]} alt="" />
+                <div className="absolute top-4 right-4 z-20">
+                    <span className="bg-white/80 backdrop-blur-sm text-[#05DF72] p-1.5 rounded-full shadow-sm border border-slate-100 flex items-center justify-center">
+                        <ShieldCheckIcon size={14} />
+                    </span>
+                </div>
+                <div className="absolute bottom-1/2 left-1/2 -translate-x-1/2 translate-y-1/2 w-32 h-32 bg-[#05DF72]/5 rounded-full blur-[40px]"></div>
             </div>
-            <div className='flex justify-between gap-3 text-sm text-slate-800 pt-2 max-w-60'>
-                <div>
-                    <p>{product.name}</p>
-                    <div className='flex'>
-                        {Array(5).fill('').map((_, index) => (
-                            <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
-                        ))}
+
+            <div className='mt-4 px-2'>
+                <p className='text-[10px] font-black uppercase tracking-widest text-[#05DF72] mb-1'>{product.category}</p>
+                <div className='flex justify-between items-start gap-4'>
+                    <div>
+                        <p className='font-bold text-slate-900 group-hover:text-[#05DF72] transition-colors line-clamp-1'>{product.name}</p>
+                        <div className='flex items-center gap-0.5 mt-1.5'>
+                            {Array(5).fill('').map((_, index) => (
+                                <StarIcon key={index} size={10} fill={rating >= index + 1 ? "#05DF72" : "#E2E8F0"} stroke="none" />
+                            ))}
+                            <span className="text-[10px] text-slate-400 font-bold ml-1">({product.rating?.length || 0})</span>
+                        </div>
                     </div>
                 </div>
-                <p>{currency}{product.price}</p>
+                <div className="mt-4 flex items-center justify-between">
+                    <p className='font-black text-lg text-slate-900 leading-none'>{currency}{product.price.toLocaleString()}</p>
+                    <span className="text-[10px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded-md group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 transition-all">VIEW</span>
+                </div>
             </div>
         </Link>
     )

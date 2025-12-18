@@ -1,6 +1,6 @@
 'use client'
 import { assets } from '@/assets/assets'
-import { ArrowRightIcon, ChevronRightIcon } from 'lucide-react'
+import { ArrowRightIcon, ChevronRightIcon, LeafIcon, RecycleIcon, ZapIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 import CategoriesMarquee from './CategoriesMarquee'
@@ -11,43 +11,50 @@ const Hero = () => {
 
     return (
         <div className='mx-6'>
-            <div className='flex max-xl:flex-col gap-8 max-w-7xl mx-auto my-10'>
-                <div className='relative flex-1 flex flex-col bg-green-200 rounded-3xl xl:min-h-100 group'>
-                    <div className='p-5 sm:p-16'>
-                        <div className='inline-flex items-center gap-3 bg-green-300 text-green-600 pr-4 p-1 rounded-full text-xs sm:text-sm'>
-                            <span className='bg-green-600 px-3 py-1 max-sm:ml-1 rounded-full text-white text-xs'>NEWS</span> Free Shipping on Orders Above ₦50! <ChevronRightIcon className='group-hover:ml-2 transition-all' size={16} />
+            <div className='flex max-xl:flex-col gap-8 max-w-7xl mx-auto my-14'>
+                <div className='relative flex-1 flex flex-col bg-[#05DF72]/10 border border-[#05DF72]/20 rounded-[2.5rem] xl:min-h-[500px] group overflow-hidden'>
+                    <div className='p-8 sm:p-20 relative z-10'>
+                        <div className='inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm text-[#05DF72] pr-5 p-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm border border-[#05DF72]/10'>
+                            <span className='bg-[#05DF72] px-3 py-1 ml-1 rounded-full text-white flex items-center gap-1'><LeafIcon size={12} /> ECO</span> Nigeria's #1 Battery Marketplace <ChevronRightIcon className='group-hover:translate-x-1 transition-all' size={16} />
                         </div>
-                        <h2 className='text-3xl sm:text-5xl leading-[1.2] my-3 font-medium bg-gradient-to-r from-slate-600 to-[#A0FF74] bg-clip-text text-transparent max-w-xs  sm:max-w-md'>
-                            Batteries you'll love. Prices you'll trust.
+                        <h2 className='text-4xl sm:text-6xl leading-[1.1] my-8 font-black text-slate-900 max-w-md'>
+                            Powering the <span className="text-[#05DF72]">Future</span>. Recycled.
                         </h2>
-                        <div className='text-slate-800 text-sm font-medium mt-4 sm:mt-8'>
-                            <p>Starts from</p>
-                            <p className='text-3xl'>{currency}4.90</p>
+                        <p className='text-slate-500 text-lg max-w-sm mb-10 leading-relaxed font-medium'>
+                            Buy and sell high-quality used batteries. Join the circular economy and save up to 60% on power costs.
+                        </p>
+                        <div className="flex flex-wrap gap-4">
+                            <button className='bg-slate-900 text-white text-sm font-bold py-4 px-10 rounded-2xl hover:bg-[#05DF72] hover:scale-105 active:scale-95 transition-all shadow-xl'>SHOP MARKETPLACE</button>
+                            <button className='bg-white text-slate-900 text-sm font-bold py-4 px-10 rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all'>BECOME A SELLER</button>
                         </div>
-                        <button className='bg-slate-800 text-white text-sm py-2.5 px-7 sm:py-5 sm:px-12 mt-4 sm:mt-10 rounded-md hover:bg-slate-900 hover:scale-103 active:scale-95 transition'>LEARN MORE</button>
                     </div>
-                    <Image className='sm:absolute bottom-0 right-0 md:right-10 w-full sm:max-w-sm' src={assets.hero_model_img} alt="" />
+                    {/* Abstract circular shapes for tech feel */}
+                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#05DF72]/5 rounded-full blur-[100px] -mr-40 -mt-20"></div>
                 </div>
-                <div className='flex flex-col md:flex-row xl:flex-col gap-5 w-full xl:max-w-sm text-sm text-slate-600'>
-                    <div className='flex-1 flex items-center justify-between w-full bg-orange-200 rounded-3xl p-6 px-8 group'>
-                        <div>
-                            <p className='text-3xl font-medium bg-gradient-to-r from-slate-800 to-[#FFAD51] bg-clip-text text-transparent max-w-40'>Best products</p>
-                            <p className='flex items-center gap-1 mt-4'>View more <ArrowRightIcon className='group-hover:ml-2 transition-all' size={18} /> </p>
+
+                <div className='flex flex-col md:flex-row xl:flex-col gap-6 w-full xl:max-w-sm'>
+                    <div className='flex-1 flex flex-col justify-between bg-slate-900 rounded-[2.5rem] p-10 group relative overflow-hidden'>
+                        <div className="relative z-10">
+                            <ZapIcon className="text-[#05DF72] mb-4" size={32} />
+                            <p className='text-2xl font-bold text-white'>Certified Sellers</p>
+                            <p className='text-slate-400 text-sm mt-3 leading-relaxed'>All vendors are verified by GoCycle for quality assurance.</p>
+                            <p className='flex items-center gap-2 mt-6 text-[#05DF72] font-bold text-sm'>Learn more <ArrowRightIcon className='group-hover:translate-x-1 transition-all' size={16} /> </p>
                         </div>
-                        <Image className='w-35' src={assets.hero_product_img1} alt="" />
+                        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#05DF72]/20 blur-[60px]"></div>
                     </div>
-                    <div className='flex-1 flex items-center justify-between w-full bg-blue-200 rounded-3xl p-6 px-8 group'>
+
+                    <div className='flex-1 flex flex-col justify-between bg-white border border-slate-100 rounded-[2.5rem] p-10 group shadow-sm'>
+                        <RecycleIcon className="text-blue-500 mb-4" size={32} />
                         <div>
-                            <p className='text-3xl font-medium bg-gradient-to-r from-slate-800 to-[#78B2FF] bg-clip-text text-transparent max-w-40'>20% discounts</p>
-                            <p className='flex items-center gap-1 mt-4'>View more <ArrowRightIcon className='group-hover:ml-2 transition-all' size={18} /> </p>
+                            <p className='text-2xl font-bold text-slate-900'>Scrap Rewards</p>
+                            <p className='text-slate-500 text-sm mt-3 leading-relaxed'>Turn your old lead-acid batteries into instant cash credit.</p>
+                            <p className='flex items-center gap-2 mt-6 text-blue-500 font-bold text-sm'>Check pricing <ArrowRightIcon className='group-hover:translate-x-1 transition-all' size={16} /> </p>
                         </div>
-                        <Image className='w-35' src={assets.hero_product_img2} alt="" />
                     </div>
                 </div>
             </div>
             <CategoriesMarquee />
         </div>
-
     )
 }
 

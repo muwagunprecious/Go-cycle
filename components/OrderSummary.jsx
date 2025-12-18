@@ -1,109 +1,144 @@
-import { PlusIcon, SquarePenIcon, XIcon } from 'lucide-react';
+'use client'
+import { PlusIcon, SquarePenIcon, XIcon, ShieldCheckIcon, WalletIcon, TruckIcon } from 'lucide-react';
 import React, { useState } from 'react'
 import AddressModal from './AddressModal';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import CheckoutModal from './CheckoutModal';
 
 const OrderSummary = ({ totalPrice, items }) => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$';
+    const currency = '₦';
 
     const router = useRouter();
 
     const addressList = useSelector(state => state.address.list);
 
-    const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [paymentMethod, setPaymentMethod] = useState('Pay Now');
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [couponCodeInput, setCouponCodeInput] = useState('');
     const [coupon, setCoupon] = useState('');
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
     const handleCouponCode = async (event) => {
         event.preventDefault();
-        
+        toast.error("Invalid coupon code for this region.")
     }
 
-    const handlePlaceOrder = async (e) => {
-        e.preventDefault();
-
-        router.push('/orders')
+    const openCheckout = () => {
+        if (!selectedAddress && addressList.length === 0) {
+            toast.error("Please add a delivery address first.")
+            return
+        }
+        setIsCheckoutOpen(true)
     }
 
     return (
-        <div className='w-full max-w-lg lg:max-w-[340px] bg-slate-50/30 border border-slate-200 text-slate-500 text-sm rounded-xl p-7'>
-            <h2 className='text-xl font-medium text-slate-600'>Payment Summary</h2>
-            <p className='text-slate-400 text-xs my-4'>Payment Method</p>
-            <div className='flex gap-2 items-center'>
-                <input type="radio" id="COD" onChange={() => setPaymentMethod('COD')} checked={paymentMethod === 'COD'} className='accent-gray-500' />
-                <label htmlFor="COD" className='cursor-pointer'>COD</label>
+        <div className='w-full max-w-lg lg:max-w-[400px] card !p-8 border-2 border-slate-100 shadow-xl shadow-slate-200/50'>
+            <div className='flex items-center gap-2 text-[#05DF72] mb-6'>
+                <ShieldCheckIcon size={20} />
+                <h2 className='text-lg font-black uppercase tracking-wider'>Payment Summary</h2>
             </div>
-            <div className='flex gap-2 items-center mt-1'>
-                <input type="radio" id="STRIPE" name='payment' onChange={() => setPaymentMethod('STRIPE')} checked={paymentMethod === 'STRIPE'} className='accent-gray-500' />
-                <label htmlFor="STRIPE" className='cursor-pointer'>Stripe Payment</label>
+
+            <div className="space-y-4 mb-8">
+                <p className='text-slate-400 text-[10px] font-black uppercase tracking-widest pl-1'>Payment Method</p>
+                <div className="grid grid-cols-1 gap-2">
+                    <button
+                        onClick={() => setPaymentMethod('Pay Now')}
+                        className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'Pay Now' ? 'border-[#05DF72] bg-[#05DF72]/5' : 'border-slate-100'}`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <WalletIcon size={18} className={paymentMethod === 'Pay Now' ? 'text-[#05DF72]' : 'text-slate-400'} />
+                            <span className={`text-sm font-bold ${paymentMethod === 'Pay Now' ? 'text-slate-900' : 'text-slate-500'}`}>Pay Now</span>
+                        </div>
+                        {paymentMethod === 'Pay Now' && <div className="w-2 h-2 bg-[#05DF72] rounded-full"></div>}
+                    </button>
+
+                    <button
+                        onClick={() => setPaymentMethod('Pay on Delivery')}
+                        className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'Pay on Delivery' ? 'border-[#05DF72] bg-[#05DF72]/5' : 'border-slate-100'}`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <TruckIcon size={18} className={paymentMethod === 'Pay on Delivery' ? 'text-[#05DF72]' : 'text-slate-400'} />
+                            <span className={`text-sm font-bold ${paymentMethod === 'Pay on Delivery' ? 'text-slate-900' : 'text-slate-500'}`}>Pay on Delivery</span>
+                        </div>
+                        {paymentMethod === 'Pay on Delivery' && <div className="w-2 h-2 bg-[#05DF72] rounded-full"></div>}
+                    </button>
+                </div>
             </div>
-            <div className='my-4 py-4 border-y border-slate-200 text-slate-400'>
-                <p>Address</p>
+
+            <div className='my-8 pt-8 border-t border-slate-100'>
+                <p className='text-slate-400 text-[10px] font-black uppercase tracking-widest pl-1 mb-4'>Shipping Address</p>
                 {
                     selectedAddress ? (
-                        <div className='flex gap-2 items-center'>
-                            <p>{selectedAddress.name}, {selectedAddress.city}, {selectedAddress.state}, {selectedAddress.zip}</p>
-                            <SquarePenIcon onClick={() => setSelectedAddress(null)} className='cursor-pointer' size={18} />
+                        <div className='flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100'>
+                            <div className="flex-1">
+                                <p className="text-sm font-bold text-slate-800">{selectedAddress.name}</p>
+                                <p className="text-xs text-slate-500 mt-1">{selectedAddress.city}, {selectedAddress.state}</p>
+                            </div>
+                            <button onClick={() => setSelectedAddress(null)} className='p-2 hover:bg-slate-200 rounded-full transition-colors'>
+                                <SquarePenIcon className='text-slate-400' size={18} />
+                            </button>
                         </div>
                     ) : (
-                        <div>
+                        <div className="space-y-3">
                             {
                                 addressList.length > 0 && (
-                                    <select className='border border-slate-400 p-2 w-full my-3 outline-none rounded' onChange={(e) => setSelectedAddress(addressList[e.target.value])} >
-                                        <option value="">Select Address</option>
+                                    <select className='w-full p-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-[#05DF72]/20 text-sm font-medium' onChange={(e) => setSelectedAddress(addressList[e.target.value])} >
+                                        <option value="">Select an address...</option>
                                         {
                                             addressList.map((address, index) => (
-                                                <option key={index} value={index}>{address.name}, {address.city}, {address.state}, {address.zip}</option>
+                                                <option key={index} value={index}>{address.name} - {address.city}</option>
                                             ))
                                         }
                                     </select>
                                 )
                             }
-                            <button className='flex items-center gap-1 text-slate-600 mt-1' onClick={() => setShowAddressModal(true)} >Add Address <PlusIcon size={18} /></button>
+                            <button className='flex items-center gap-2 text-[#05DF72] text-[10px] font-black uppercase tracking-widest bg-[#05DF72]/5 px-4 py-2 rounded-lg hover:bg-[#05DF72]/10 transition-colors' onClick={() => setShowAddressModal(true)} >
+                                <PlusIcon size={14} /> Add New Address
+                            </button>
                         </div>
                     )
                 }
             </div>
-            <div className='pb-4 border-b border-slate-200'>
-                <div className='flex justify-between'>
-                    <div className='flex flex-col gap-1 text-slate-400'>
-                        <p>Subtotal:</p>
-                        <p>Shipping:</p>
-                        {coupon && <p>Coupon:</p>}
+
+            <div className='pb-6 border-b border-slate-100'>
+                <div className='space-y-3'>
+                    <div className='flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter'>
+                        <span>Subtotal:</span>
+                        <span className="text-slate-900">{currency}{totalPrice.toLocaleString()}</span>
                     </div>
-                    <div className='flex flex-col gap-1 font-medium text-right'>
-                        <p>{currency}{totalPrice.toLocaleString()}</p>
-                        <p>Free</p>
-                        {coupon && <p>{`-${currency}${(coupon.discount / 100 * totalPrice).toFixed(2)}`}</p>}
+                    <div className='flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter'>
+                        <span>Shipping:</span>
+                        <span className="text-[#05DF72]">Lagos Standard Free</span>
                     </div>
                 </div>
-                {
-                    !coupon ? (
-                        <form onSubmit={e => toast.promise(handleCouponCode(e), { loading: 'Checking Coupon...' })} className='flex justify-center gap-3 mt-3'>
-                            <input onChange={(e) => setCouponCodeInput(e.target.value)} value={couponCodeInput} type="text" placeholder='Coupon Code' className='border border-slate-400 p-1.5 rounded w-full outline-none' />
-                            <button className='bg-slate-600 text-white px-3 rounded hover:bg-slate-800 active:scale-95 transition-all'>Apply</button>
-                        </form>
-                    ) : (
-                        <div className='w-full flex items-center justify-center gap-2 text-xs mt-2'>
-                            <p>Code: <span className='font-semibold ml-1'>{coupon.code.toUpperCase()}</span></p>
-                            <p>{coupon.description}</p>
-                            <XIcon size={18} onClick={() => setCoupon('')} className='hover:text-red-700 transition cursor-pointer' />
-                        </div>
-                    )
-                }
+
+                <form onSubmit={handleCouponCode} className='flex gap-3 mt-6'>
+                    <input onChange={(e) => setCouponCodeInput(e.target.value)} value={couponCodeInput} type="text" placeholder='Coupon Code' className='bg-slate-50 p-4 rounded-2xl w-full outline-none text-xs font-medium' />
+                    <button className='bg-slate-900 text-white px-6 rounded-2xl font-bold text-xs hover:bg-slate-800 active:scale-95 transition-all'>Apply</button>
+                </form>
             </div>
-            <div className='flex justify-between py-4'>
-                <p>Total:</p>
-                <p className='font-medium text-right'>{currency}{coupon ? (totalPrice - (coupon.discount / 100 * totalPrice)).toFixed(2) : totalPrice.toLocaleString()}</p>
+
+            <div className='flex justify-between py-8'>
+                <p className="font-black text-slate-900 uppercase text-sm">Grand Total:</p>
+                <p className='font-black text-2xl text-slate-900 tracking-tighter'>{currency}{totalPrice.toLocaleString()}</p>
             </div>
-            <button onClick={e => toast.promise(handlePlaceOrder(e), { loading: 'placing Order...' })} className='w-full bg-slate-700 text-white py-2.5 rounded hover:bg-slate-900 active:scale-95 transition-all'>Place Order</button>
+
+            <button onClick={openCheckout} className='w-full btn-primary !py-5 shadow-2xl shadow-[#05DF72]/30'>
+                Place Order Securely
+            </button>
 
             {showAddressModal && <AddressModal setShowAddressModal={setShowAddressModal} />}
+
+            <CheckoutModal
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                product={items?.[0] || { name: 'Cart Order', price: totalPrice }}
+                paymentMethod={paymentMethod}
+            />
 
         </div>
     )

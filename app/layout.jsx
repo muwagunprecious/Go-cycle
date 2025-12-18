@@ -3,12 +3,13 @@ import { Toaster } from "react-hot-toast";
 import StoreProvider from "@/app/StoreProvider";
 import "./globals.css";
 
-const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600"] });
+const outfit = Outfit({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"] });
 
 export const metadata = {
-    title: "GoCart. - Shop smarter",
-    description: "GoCart. - Shop smarter",
+    title: "GoCycle | Sustainable Battery Marketplace",
+    description: "Buy and sell verified used batteries. Join the circular economy in Lagos.",
 };
+
 
 export default function RootLayout({ children }) {
     return (

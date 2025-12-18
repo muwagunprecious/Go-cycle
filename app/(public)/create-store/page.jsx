@@ -1,25 +1,28 @@
 'use client'
-import { assets } from "@/assets/assets"
+import { assets, lagosLGAs } from "@/assets/assets"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import Loading from "@/components/Loading"
+import { useRouter } from "next/navigation"
 
 export default function CreateStore() {
-
+    const router = useRouter()
     const [alreadySubmitted, setAlreadySubmitted] = useState(false)
     const [status, setStatus] = useState("")
     const [loading, setLoading] = useState(true)
     const [message, setMessage] = useState("")
 
     const [storeInfo, setStoreInfo] = useState({
-        name: "",
-        username: "",
-        description: "",
+        businessName: "",
+        fullName: "",
         email: "",
-        contact: "",
+        phone: "",
+        state: "Lagos",
+        lga: "",
         address: "",
-        image: ""
+        batteryTypes: "",
+        logo: null
     })
 
     const onChangeHandler = (e) => {
@@ -27,17 +30,31 @@ export default function CreateStore() {
     }
 
     const fetchSellerStatus = async () => {
-        // Logic to check if the store is already submitted
-
-
+        // Mocking a status check
+        const mockStatus = localStorage.getItem('gocycle_seller_status')
+        if (mockStatus) {
+            setAlreadySubmitted(true)
+            setStatus(mockStatus)
+            setMessage(mockStatus === 'pending' ? "Your application is currently pending approval. We'll notify you once it's reviewed." : "Your account is approved! Redirecting...")
+            if (mockStatus === 'approved') {
+                setTimeout(() => router.push('/seller'), 3000)
+            }
+        }
         setLoading(false)
     }
 
     const onSubmitHandler = async (e) => {
         e.preventDefault()
-        // Logic to submit the store details
-
-
+        // Mocking submission
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                localStorage.setItem('gocycle_seller_status', 'pending')
+                setAlreadySubmitted(true)
+                setStatus('pending')
+                setMessage("Application submitted successfully! Your account is currently pending approval.")
+                resolve()
+            }, 2000)
+        })
     }
 
     useEffect(() => {
@@ -45,49 +62,100 @@ export default function CreateStore() {
     }, [])
 
     return !loading ? (
-        <>
+        <div className="bg-[#f9fafb] min-h-screen">
             {!alreadySubmitted ? (
-                <div className="mx-6 min-h-[70vh] my-16">
-                    <form onSubmit={e => toast.promise(onSubmitHandler(e), { loading: "Submitting data..." })} className="max-w-7xl mx-auto flex flex-col items-start gap-3 text-slate-500">
+                <div className="max-w-4xl mx-auto px-6 py-16">
+                    <form onSubmit={e => toast.promise(onSubmitHandler(e), { loading: "Submitting application...", success: "Submitted!", error: "Failed to submit" })} className="bg-white p-10 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-6">
                         {/* Title */}
-                        <div>
-                            <h1 className="text-3xl ">Add Your <span className="text-slate-800 font-medium">Store</span></h1>
-                            <p className="max-w-lg">To become a seller on GoCart, submit your store details for review. Your store will be activated after admin verification.</p>
+                        <div className="mb-6">
+                            <h1 className="text-3xl text-slate-900 font-bold mb-2">Sell on <span className="text-[#05DF72]">GoCycle</span></h1>
+                            <p className="text-slate-500">Join our circular-economy marketplace. Submit your vendor details below.</p>
                         </div>
 
-                        <label className="mt-10 cursor-pointer">
-                            Store Logo
-                            <Image src={storeInfo.image ? URL.createObjectURL(storeInfo.image) : assets.upload_area} className="rounded-lg mt-2 h-16 w-auto" alt="" width={150} height={100} />
-                            <input type="file" accept="image/*" onChange={(e) => setStoreInfo({ ...storeInfo, image: e.target.files[0] })} hidden />
-                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Full Name</label>
+                                <input required name="fullName" onChange={onChangeHandler} value={storeInfo.fullName} type="text" placeholder="Enter your full name" className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all" />
+                            </div>
 
-                        <p>Username</p>
-                        <input name="username" onChange={onChangeHandler} value={storeInfo.username} type="text" placeholder="Enter your store username" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded" />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Business / Vendor Name</label>
+                                <input required name="businessName" onChange={onChangeHandler} value={storeInfo.businessName} type="text" placeholder="Enter business name" className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all" />
+                            </div>
 
-                        <p>Name</p>
-                        <input name="name" onChange={onChangeHandler} value={storeInfo.name} type="text" placeholder="Enter your store name" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded" />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Email Address</label>
+                                <input required name="email" onChange={onChangeHandler} value={storeInfo.email} type="email" placeholder="email@example.com" className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all" />
+                            </div>
 
-                        <p>Description</p>
-                        <textarea name="description" onChange={onChangeHandler} value={storeInfo.description} rows={5} placeholder="Enter your store description" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded resize-none" />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Phone Number</label>
+                                <input required name="phone" onChange={onChangeHandler} value={storeInfo.phone} type="text" placeholder="+234 ..." className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all" />
+                            </div>
 
-                        <p>Email</p>
-                        <input name="email" onChange={onChangeHandler} value={storeInfo.email} type="email" placeholder="Enter your store email" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded" />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">State</label>
+                                <input disabled name="state" value={storeInfo.state} type="text" className="bg-slate-50 border border-slate-200 w-full p-3 rounded-xl text-slate-400 cursor-not-allowed" />
+                            </div>
 
-                        <p>Contact Number</p>
-                        <input name="contact" onChange={onChangeHandler} value={storeInfo.contact} type="text" placeholder="Enter your store contact number" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded" />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Local Government Area (Lagos)</label>
+                                <select required name="lga" onChange={onChangeHandler} value={storeInfo.lga} className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all">
+                                    <option value="">Select LGA</option>
+                                    {lagosLGAs.map(lga => <option key={lga} value={lga}>{lga}</option>)}
+                                </select>
+                            </div>
+                        </div>
 
-                        <p>Address</p>
-                        <textarea name="address" onChange={onChangeHandler} value={storeInfo.address} rows={5} placeholder="Enter your store address" className="border border-slate-300 outline-slate-400 w-full max-w-lg p-2 rounded resize-none" />
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-slate-700">Business Address</label>
+                            <textarea required name="address" onChange={onChangeHandler} value={storeInfo.address} rows={3} placeholder="Full business address" className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all resize-none" />
+                        </div>
 
-                        <button className="bg-slate-800 text-white px-12 py-2 rounded mt-10 mb-40 active:scale-95 hover:bg-slate-900 transition ">Submit</button>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-slate-700">Type of Batteries Sold</label>
+                            <input required name="batteryTypes" onChange={onChangeHandler} value={storeInfo.batteryTypes} type="text" placeholder="e.g. Car, Inverter, Lithium, UPS" className="border border-slate-200 outline-none focus:border-[#05DF72] w-full p-3 rounded-xl transition-all" />
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-4">
+                            <input required type="checkbox" id="terms" className="w-5 h-5 accent-[#05DF72] cursor-pointer" />
+                            <label htmlFor="terms" className="text-sm text-slate-600 cursor-pointer">I agree to the GoCycle terms and environmental policies.</label>
+                        </div>
+
+                        <button type="submit" className="btn-primary mt-6 !py-4 text-lg">Apply for Seller Account</button>
                     </form>
                 </div>
             ) : (
-                <div className="min-h-[80vh] flex flex-col items-center justify-center">
-                    <p className="sm:text-2xl lg:text-3xl mx-5 font-semibold text-slate-500 text-center max-w-2xl">{message}</p>
-                    {status === "approved" && <p className="mt-5 text-slate-400">redirecting to dashboard in <span className="font-semibold">5 seconds</span></p>}
+                <div className="min-h-[80vh] flex flex-col items-center justify-center p-6">
+                    <div className="bg-white p-12 rounded-3xl border border-slate-200 shadow-xl max-w-xl w-full text-center flex flex-col items-center gap-6">
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center ${status === 'pending' ? 'bg-orange-100 text-orange-500' : 'bg-green-100 text-green-500'}`}>
+                            {status === 'pending' ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                            )}
+                        </div>
+                        <div>
+                            <span className={`status-badge ${status === 'pending' ? 'status-pending' : 'status-completed'} mb-4 uppercase tracking-wider`}>
+                                Account {status}
+                            </span>
+                            <h2 className="text-2xl font-bold text-slate-900 mt-4">{status === 'pending' ? 'Application Received' : 'Welcome to GoCycle!'}</h2>
+                            <p className="text-slate-500 mt-4 leading-relaxed">{message}</p>
+                        </div>
+                        {status === "approved" && <p className="text-sm text-slate-400">Redirecting to your dashboard...</p>}
+                        {status === "pending" && (
+                            <button onClick={() => {
+                                localStorage.setItem('gocycle_seller_status', 'approved')
+                                setStatus('approved')
+                                setMessage("Your account has been approved! Redirecting you now...")
+                                setTimeout(() => router.push('/seller'), 2000)
+                            }} className="text-xs text-slate-300 mt-8 hover:text-[#05DF72] transition-colors">
+                                (Mock Admin Approval - Click to Bypass)
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
-        </>
+        </div>
     ) : (<Loading />)
 }
