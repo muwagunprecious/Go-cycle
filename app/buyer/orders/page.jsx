@@ -37,6 +37,7 @@ const DUMMY_HISTORY = [
 ]
 
 export default function BuyerOrders() {
+    const router = useRouter()
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(true)
     const [orders, setOrders] = useState([])
@@ -54,6 +55,13 @@ export default function BuyerOrders() {
         setTimeout(() => setLoading(false), 800)
     }, [])
 
+    const handleNavigation = (href, message = "Loading tracking details...") => {
+        dispatch(showLoader(message))
+        setTimeout(() => {
+            router.push(href)
+        }, 500)
+    }
+
     if (loading) return <Loading />
 
     const filteredOrders = orders.filter(order =>
@@ -68,14 +76,6 @@ export default function BuyerOrders() {
             case 'cancelled': return 'bg-rose-50 text-rose-600 border-rose-100'
             default: return 'bg-slate-50 text-slate-600 border-slate-100'
         }
-    }
-
-    const router = useRouter()
-    const handleNavigation = (href, message = "Loading tracking details...") => {
-        dispatch(showLoader(message))
-        setTimeout(() => {
-            router.push(href)
-        }, 500)
     }
 
     return (
